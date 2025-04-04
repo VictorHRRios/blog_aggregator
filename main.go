@@ -12,8 +12,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error: %s", err)
 	}
-	configFile.CurrentUserName = "Victor"
-	config.SetUser(configFile)
+	configFile.SetUser("VictorHugo")
 
 	configFile, err = config.Read()
 	if err != nil {

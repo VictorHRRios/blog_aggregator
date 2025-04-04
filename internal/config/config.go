@@ -4,35 +4,64 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path"
 )
+
+const configFileName = ".gatorconfig.json"
+
+type Config struct {
+	DbURL           string `json:"db_url"`
+	CurrentUserName string `json:"current_user_name"`
+}
+
+func (cfg Config) SetUser(username string) error {
+	cfg.CurrentUserName = username
+	if err := write(cfg); err != nil {
+		return err
+	}
+	return nil
+}
 
 func Read() (Config, error) {
 	jsonPath, err := getConfigFilePath()
 	if err != nil {
-		return Config{}, fmt.Errorf("Cannot get config path")
+		return Config{}, fmt.Errorf("Cannot get config path: %v", err)
 	}
-	jsonFile, err := os.ReadFile(jsonPath)
+	jsonFile, err := os.OpenFile(jsonPath, os.O_RDONLY, 0644)
 	if err != nil {
-		return Config{}, fmt.Errorf("Cannot read file")
+		return Config{}, fmt.Errorf("Cannot open file")
 	}
+
+	defer jsonFile.Close()
 
 	var config Config
 
-	if err = json.Unmarshal(jsonFile, &config); err != nil {
-		return Config{}, fmt.Errorf("Cannot unmarshal")
+	decoder := json.NewDecoder(jsonFile)
+
+	if err = decoder.Decode(&config); err != nil {
+		return Config{}, fmt.Errorf("Cannot decode to string")
 	}
 
 	return config, nil
 }
 
-func SetUser(c Config) error {
-	jsonBytes, _ := json.Marshal(c)
+func write(cfg Config) error {
 	jsonPath, err := getConfigFilePath()
 	if err != nil {
-		return err
+		return fmt.Errorf("Cannot get config path: %v", err)
 	}
-	err = os.WriteFile(jsonPath, jsonBytes, 0644)
-	return err
+	jsonFile, err := os.OpenFile(jsonPath, os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("Cannot open file for write")
+	}
+	defer jsonFile.Close()
+
+	encoder := json.NewEncoder(jsonFile)
+
+	if err = encoder.Encode(cfg); err != nil {
+		return fmt.Errorf("Cannot encode to file")
+	}
+	return nil
 }
 
 func getConfigFilePath() (string, error) {
@@ -40,6 +69,5 @@ func getConfigFilePath() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("Could not get home directory")
 	}
-	config_file_path := home + "/.gatorconfig.json"
-	return config_file_path, nil
+	return path.Join(home, configFileName), nil
 }
