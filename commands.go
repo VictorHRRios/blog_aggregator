@@ -11,6 +11,16 @@ type commands struct {
 	commandName map[string]func(*state, command) error
 }
 
+func getCommands() commands {
+	cmds := commands{
+		commandName: make(map[string]func(*state, command) error),
+	}
+	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
+	cmds.register("reset", handlerReset)
+	return cmds
+}
+
 func (c *commands) register(name string, f func(*state, command) error) {
 	c.commandName[name] = f
 }

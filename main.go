@@ -16,15 +16,6 @@ type state struct {
 	queries *database.Queries
 }
 
-func getCommands() commands {
-	cmds := commands{
-		commandName: make(map[string]func(*state, command) error),
-	}
-	cmds.register("login", handlerLogin)
-	cmds.register("register", handlerRegister)
-	return cmds
-}
-
 func main() {
 	cfg, err := config.Read()
 	if err != nil {
