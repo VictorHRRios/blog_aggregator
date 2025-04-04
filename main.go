@@ -1,14 +1,19 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"os"
 
 	"github.com/VictorHRRios/blog_aggregator/internal/config"
+	"github.com/VictorHRRios/blog_aggregator/internal/database"
+
+	_ "github.com/lib/pq"
 )
 
 type state struct {
-	cfg *config.Config
+	cfg     *config.Config
+	queries *database.Queries
 }
 
 func getCommands() commands {
@@ -16,6 +21,7 @@ func getCommands() commands {
 		commandName: make(map[string]func(*state, command) error),
 	}
 	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
 	return cmds
 }
 
@@ -24,8 +30,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error: %s", err)
 	}
+
+	db, err := sql.Open("postgres", cfg.DbURL)
+	dbQueries := database.New(db)
+
 	newState := state{
-		cfg: &cfg,
+		cfg:     &cfg,
+		queries: dbQueries,
 	}
 	if len(os.Args) < 2 {
 		log.Fatal("Usage blog_aggregator [command]")
