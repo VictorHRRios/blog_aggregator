@@ -45,3 +45,25 @@ func handlerFollow(s *state, cmd command) error {
 
 	return nil
 }
+
+func handlerFollowing(s *state, cmd command) error {
+	user, err := s.queries.GetUser(context.Background(), s.cfg.CurrentUserName)
+	if err != nil {
+		return fmt.Errorf("Colud not get user:\n%v", err)
+	}
+
+	if len(cmd.arguments) != 0 {
+		return fmt.Errorf("follow command does not need any argument")
+	}
+
+	followedFeeds, err := s.queries.GetFeedFollowsForUser(context.Background(), user.ID)
+	if err != nil {
+		return fmt.Errorf("Colud not get followed feeds:\n%v", err)
+	}
+	fmt.Println("Followed Feeds:")
+	for _, feed := range followedFeeds {
+		fmt.Printf("    * %v\n", feed.FeedName)
+
+	}
+	return nil
+}
