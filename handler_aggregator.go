@@ -38,8 +38,9 @@ func handlerFeeds(s *state, cmd command) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("Registered feeds:")
 	for _, feed := range feeds {
-		fmt.Printf("%v, %v, %v\n", feed.Name, feed.Url, feed.UserName)
+		fmt.Printf("    * %v, %v, by: %v\n", feed.Name, feed.Url, feed.UserName)
 	}
 	return nil
 }
@@ -62,6 +63,19 @@ func handlerAddFeed(s *state, cmd command) error {
 		Url:       url,
 		UserID:    user.ID,
 	})
+	if err != nil {
+		return err
+	}
+
+	_, err = s.queries.CreateFeedFollow(
+		context.Background(),
+		database.CreateFeedFollowParams{
+			ID:        uuid.New(),
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+			UserID:    user.ID,
+			FeedID:    newFeed.ID,
+		})
 	if err != nil {
 		return err
 	}

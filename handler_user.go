@@ -19,12 +19,13 @@ func handlerGetUsers(s *state, cmd command) error {
 	if err != nil {
 		return fmt.Errorf("Could not get entries from users table:\n%v", err)
 	}
+	fmt.Println("Registered users:")
 	for _, entry := range users {
 		if entry.Name == s.cfg.CurrentUserName {
-			fmt.Printf("* %v (current)\n", entry.Name)
+			fmt.Printf("    * %v (current)\n", entry.Name)
 			continue
 		}
-		fmt.Printf("* %v\n", entry.Name)
+		fmt.Printf("    * %v\n", entry.Name)
 	}
 	return nil
 }
