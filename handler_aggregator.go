@@ -33,6 +33,17 @@ func handlerAgg(s *state, cmd command) error {
 	return nil
 }
 
+func handlerFeeds(s *state, cmd command) error {
+	feeds, err := s.queries.GetFeeds(context.Background())
+	if err != nil {
+		return err
+	}
+	for _, feed := range feeds {
+		fmt.Printf("%v, %v, %v\n", feed.Name, feed.Url, feed.UserName)
+	}
+	return nil
+}
+
 func handlerAddFeed(s *state, cmd command) error {
 	user, err := s.queries.GetUser(context.Background(), s.cfg.CurrentUserName)
 	if err != nil {
