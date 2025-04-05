@@ -65,6 +65,8 @@ func handlerAddFeed(s *state, cmd command) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("newFeed: %v\n", newFeed)
+	fmt.Printf("Created by: %v\n Name: %v\n URL: %v\n", s.cfg.CurrentUserName,
+		newFeed.Name,
+		newFeed.Url)
 	return nil
 }
