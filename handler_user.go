@@ -31,14 +31,11 @@ func handlerGetUsers(s *state, cmd command) error {
 }
 
 func handlerLogin(s *state, cmd command) error {
-	ctx := context.Background()
-
 	if len(cmd.arguments) != 1 {
 		return fmt.Errorf("Username is required for login")
 	}
-
 	userName := cmd.arguments[0]
-	user, err := s.queries.GetUser(ctx, userName)
+	user, err := s.queries.GetUser(context.Background(), userName)
 	if err != nil {
 		return fmt.Errorf("User not in database")
 	}

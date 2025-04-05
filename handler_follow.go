@@ -9,11 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func handlerFollow(s *state, cmd command) error {
-	user, err := s.queries.GetUser(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("Colud not get user:\n%v", err)
-	}
+func handlerFollow(s *state, cmd command, user database.User) error {
 
 	if len(cmd.arguments) != 1 {
 		return fmt.Errorf("follow command needs one argument")
@@ -46,11 +42,7 @@ func handlerFollow(s *state, cmd command) error {
 	return nil
 }
 
-func handlerFollowing(s *state, cmd command) error {
-	user, err := s.queries.GetUser(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("Colud not get user:\n%v", err)
-	}
+func handlerFollowing(s *state, cmd command, user database.User) error {
 
 	if len(cmd.arguments) != 0 {
 		return fmt.Errorf("follow command does not need any argument")
