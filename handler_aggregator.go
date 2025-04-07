@@ -12,24 +12,38 @@ import (
 
 func handlerAgg(s *state, cmd command) error {
 	if len(cmd.arguments) != 1 {
-		return fmt.Errorf("Needs an URL")
+		return fmt.Errorf("Needs a time between requests")
 	}
-	url := cmd.arguments[0]
-	ctx := context.Background()
-	feed, err := feed.FetchFeed(ctx, url)
+	time_between_reqs, err := time.ParseDuration(cmd.arguments[0])
 	if err != nil {
-		return fmt.Errorf("Something went wrong when fetching url\n%v", err)
+		return err
+	}
+	ticker := time.NewTicker(time_between_reqs)
+	fmt.Println("Collecing feeds every:", time_between_reqs)
+	for ; ; <-ticker.C {
+		fmt.Println("making a request")
+		scrapeFeeds(s)
+	}
+}
+
+func scrapeFeeds(s *state) error {
+	nextFeed, err := s.queries.GetNextFeedToFetch(context.Background())
+	if err != nil {
+		return err
+	}
+	err = s.queries.MarkFeedFetched(context.Background(), nextFeed.ID)
+	if err != nil {
+		return err
+	}
+	rssFeed, err := feed.FetchFeed(context.Background(), nextFeed.Url)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Title: %v\n", rssFeed.Channel.Title)
+	for _, item := range rssFeed.Channel.Item {
+		fmt.Printf("Item title: %v\n", item.Title)
 	}
 
-	fmt.Println(feed.Channel.Title)
-	fmt.Println(feed.Channel.Link)
-	fmt.Println(feed.Channel.Description)
-	for _, item := range feed.Channel.Item {
-		fmt.Println(item.Title)
-		fmt.Println(item.Link)
-		fmt.Println(item.Description)
-		fmt.Println(item.PubDate)
-	}
 	return nil
 }
 
