@@ -41,6 +41,17 @@ func scrapeFeeds(s *state) error {
 	}
 	fmt.Printf("Title: %v\n", rssFeed.Channel.Title)
 	for _, item := range rssFeed.Channel.Item {
+		_, err = s.queries.CreatePost(context.Background(), database.CreatePostParams{
+			ID:          uuid.New(),
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+			Title:       item.Title,
+			Url:         item.Link,
+			Description: item.Description,
+			PublishedAt: item.PubDate,
+			FeedID:      nextFeed.ID,
+		})
+		fmt.Println(err)
 		fmt.Printf("Item title: %v\n", item.Title)
 	}
 
