@@ -10,13 +10,14 @@ values (
 	$7,
 	$8
 )
+on conflict (url) do nothing
 returning *;
 
 -- name: GetPostForUser :many
 select posts.*
 from posts
 join feeds on feeds.id = posts.feed_id
-join users on users.id = feeds.id
+join users on users.id = feeds.user_id
 where users.id = $1
 order by posts.published_at desc
 limit $2;

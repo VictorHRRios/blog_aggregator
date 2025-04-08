@@ -24,6 +24,7 @@ values (
 	$7,
 	$8
 )
+on conflict (url) do nothing
 returning id, created_at, updated_at, title, url, description, published_at, feed_id
 `
 
@@ -67,7 +68,7 @@ const getPostForUser = `-- name: GetPostForUser :many
 select posts.id, posts.created_at, posts.updated_at, posts.title, posts.url, posts.description, posts.published_at, posts.feed_id
 from posts
 join feeds on feeds.id = posts.feed_id
-join users on users.id = feeds.id
+join users on users.id = feeds.user_id
 where users.id = $1
 order by posts.published_at desc
 limit $2
